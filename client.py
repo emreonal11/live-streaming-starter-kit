@@ -4,6 +4,8 @@ import os
 import sys
 import websockets
 import json
+from dotenv import load_dotenv
+load_dotenv()
 
 # Mimic sending a real-time stream by sending this many seconds of audio at a time.
 # Used for file "streaming" only.
@@ -15,17 +17,16 @@ encoding_samplewidth_map = {"linear16": 2, "mulaw": 1}
 async def audio_stream(audio_file_path, encoding, sample_rate, channels):
     data = open(audio_file_path, "rb").read()
 
-    url = "ws://localhost:5000"
+    #url = "ws://localhost:5000"
     # To test integrating with DG, uncomment the following line (also, specify your API key below)
-    # url = 'wss://api.deepgram.com/v1/listen'
+    url = 'wss://api.deepgram.com/v1/listen'
 
     url += f"?encoding={encoding}&sample_rate={sample_rate}&channels={channels}"
 
     async with websockets.connect(
         url,
         extra_headers={
-            # If you're testing integration with DG, add your API key here
-            "Authorization": "Token {}".format("YOUR_DG_API_KEY")
+            "Authorization": "Token {}".format(os.getenv('DEEPGRAM_API_KEY')) # TODO: replace with your API key os.environ.get("DEEPGRAM_API_KEY")
         },
     ) as ws:
         print("🟢 (1/5) Successfully opened streaming connection")
